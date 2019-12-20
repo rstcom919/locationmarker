@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1044200575487",
+    "firebase_url": "https://pwarsaeproject.firebaseio.com",
+    "project_id": "pwarsaeproject",
+    "storage_bucket": "pwarsaeproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1044200575487:android:a2de355e8bf969694957ca",
+        "android_client_info": {
+          "package_name": "com.locationmark"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1044200575487-5pcg5cqo2kjg624tnscn6bd2r9677gpj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDADJHS4zCJ9y9kMoQsZJTraZAPIPI1Ac4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1044200575487-5pcg5cqo2kjg624tnscn6bd2r9677gpj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
