@@ -9,10 +9,12 @@
 import React, { Component } from 'react';
 import { Image, Platform, StyleSheet, Text, View, ImageBackground, Dimensions, FlatList, TouchableOpacity } from 'react-native';
 import Navbar from '../../Components/navbar'
-import MapView, { PROVIDER_GOOGLE,Marker } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import Geocoder from 'react-native-geocoding';
+import axios from 'axios'
 import { ActionCreators } from "../../redux/action.js"
 
 const backImage = require('../../Assets/UI/back1.png');
@@ -22,7 +24,7 @@ const map_picker = require('../../Assets/UI/map_picker.png');
 let { width, height } = Dimensions.get('window');//Double
 const ASPECT_RATIO = width / height;
 const LATITUDE = 38.78825;
-const LONGITUDE =  -122.4324;
+const LONGITUDE = -122.4324;
 const LATITUDE_DELTA = 0.00922;
 const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 
@@ -38,17 +40,13 @@ class seletNewPlace extends Component<Props> {
             latitudeDelta: LATITUDE_DELTA,
             longitudeDelta: LONGITUDE_DELTA,
             loading: false,
-            mapType: 'standard',
-            mapRegion: {
-
-            }
+            mapType: 'satellite',
+            mapRegion: {},
+            places: []
         }
     }
     getInitialState() {
         let region = this.props.navigation.getParam('region');
-        // console.log("region", region)
-        //this.setState({ region: region });
-        //this.handleMakerPress(region)
 
     }
     handleMakerPress = (latitude, longitude) => {
@@ -63,23 +61,29 @@ class seletNewPlace extends Component<Props> {
         this.getInitialState();
     }
     _gotoMe = () => {
-
         Geolocation.getCurrentPosition(
             position => {
-                this.handleMakerPress(position.coords.latitude,  position.coords.longitude,)
-                //   console.log(position.coords.latitude)
-                // this.setState({
-                //     region: {
-                //         latitude: position.coords.latitude,
-                //         longitude: position.coords.longitude,
-                //         latitudeDelta: 0.0922,
-                //         longitudeDelta: 0.0421
-                //     }
-                // });
+                this.getMarkers(position.coords.latitude, position.coords.longitude)
+                this.handleMakerPress(position.coords.latitude, position.coords.longitude)
             },
             (error) => console.log(error.message),
             { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
         );
+    }
+    getMarkers = (latitude, longitude) => {
+
+        const data = { latitude, longitude, "radius":1000 }
+        axios.post('http://placetracker.net/RestAPIs/movePlaceRequest', data)
+            .then(res => {
+                console.log("markers------",res.data.status)
+                if (res.data.status) {
+                    this.setState({ places: res.data.places})
+                }
+                else {
+                    console.log("error")
+                }
+            })
+
     }
     onRegionChange = (region) => {
         this.setState({ region: region });
@@ -101,13 +105,13 @@ class seletNewPlace extends Component<Props> {
         // console.log("region", region)
         //this.setState({ region: region });
         this._gotoMe()
-        this.handleMakerPress(region.latitude, region.longitude)
+        //this.handleMakerPress(region.latitude, region.longitude)
 
-      }
+    }
 
     render() {
         let navigate = this.props.navigation.navigate;
-        let {latitude, longitude}= this.state
+        let { latitude, longitude, places } = this.state
         return (
             <View
                 style={styles.backgroundImage}>
@@ -118,14 +122,14 @@ class seletNewPlace extends Component<Props> {
                         rightText={"Next"}
                         rightAction={this._gotoAdd}
                         leftAction={() => navigate('MainScreen')}
-
                     />
                 </View>
                 <MapView
                     ref={ref => (this.mapView = ref)}
                     initialRegion={{
                         ...this.state
-                    }} 
+                    }}
+                    showsUserLocation={true}
                     provider={PROVIDER_GOOGLE}
                     style={styles.MapContainer}
                     mapType={this.state.mapType}
@@ -134,22 +138,24 @@ class seletNewPlace extends Component<Props> {
                         trailing: true
                     })}
                     onLayout={this.onMapLayout}
-                //   region={this.state.region}
-                // onRegionChange={this.onRegionChange}
                 >
-                          <Marker
-                        zIndex={1000}
-                        anchor={{ y: 0.75, x: 0.5 }}
-                        coordinate={{
-                            latitude: latitude || 37.78825,
-                            longitude: longitude || -122.4324
-                        }}
-
-                    />
-                    {/* <Marker draggable
-                        coordinate={{ latitude: this.state.region.latitude, longitude: this.state.region.longitude }}
-                        title={'title'}
-                        description={'description'}/> */}
+                    {
+                        places.map(place => {
+                            const { title } = place
+                            return (
+                                <Marker
+                                    zIndex={1000}
+                                    title={title}
+                                    anchor={{ y: 0.75, x: 0.5 }}
+                                   // pinColor={Color.green}
+                                    coordinate={{
+                                        latitude: parseFloat(place.latitude) || 37.78825,
+                                        longitude: parseFloat(place.longitude) || -122.4324
+                                    }}
+                                />
+                            )
+                        })
+                    }
                 </MapView>
                 <View style={styles.bottomContainer}>
                     <View style={{ flexDirection: 'row' }}>
@@ -224,7 +230,7 @@ const styles = StyleSheet.create({
     MapContainer: {
         flex: 1,
         width: width,
-        height:height
+        height: height
     },
     bottomContainer: {
         flexDirection: 'row',

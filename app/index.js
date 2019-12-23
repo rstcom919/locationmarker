@@ -51,7 +51,7 @@ export default class App extends Component<Props> {
     const fcmToken = await firebase.messaging().getToken();
     if (fcmToken) {
       console.log(fcmToken);
-      this.showAlert('Your Firebase Token is:', fcmToken);
+     // this.showAlert('Your Firebase Token is:', fcmToken);
     } else {
       this.showAlert('Failed', 'No token received');
     }

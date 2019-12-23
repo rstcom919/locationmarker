@@ -17,21 +17,24 @@ import axios from 'axios'
 import { connect } from "react-redux";
 import Geolocation from '@react-native-community/geolocation';
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
-import MapView from 'react-native-maps';
 import AsyncStorage from '@react-native-community/async-storage';//`${ADMIN_ENDPOINT}register`
-import { Marker } from 'react-native-maps';
+import MapView, { PROVIDER_GOOGLE, Marker } from 'react-native-maps';
 const homePlace = { description: 'Home', geometry: { location: { lat: 48.8152937, lng: 2.4597668 } } };
 const workPlace = { description: 'Work', geometry: { location: { lat: 48.8496818, lng: 2.2940881 } } };
 const myLocation = require('../../Assets/UI/myLocation.png');
 
-
+let { width, height } = Dimensions.get('window');//Double
+const ASPECT_RATIO = width / height;
+const LATITUDE = 38.78825;
+const LONGITUDE = -122.4324;
+const LATITUDE_DELTA = 0.00922;
+const LONGITUDE_DELTA = LATITUDE_DELTA * ASPECT_RATIO;
 const setting = require('../../Assets/UI/setting.png');
 const logout = require('../../Assets/UI/logout.png');
 const map_nor = require('../../Assets/UI/map_nor.png');
 const map_sat = require('../../Assets/UI/map_sat.jpg');
 
 const search_ico = require('../../Assets/UI/search_ico.png');
-let { width, height } = Dimensions.get('window');//Double
 
 class MapScreen extends Component {
     constructor(props) {
@@ -39,31 +42,34 @@ class MapScreen extends Component {
         this.state = {
             region: {
             },
+            latitude: LATITUDE,
+            longitude: LONGITUDE,
+            latitudeDelta: LATITUDE_DELTA,
+            longitudeDelta: LONGITUDE_DELTA,
             loading: false,
             mapType: 'standard',
             modalState: false,
             searchStr: '',
             searchPlaces: [],
-            mapRegion: {
-
-            }
+            mapRegion: { },
+            places:[]
         }
     }
 
     getInitialState() {
-        let latitude = 40.78825, longitude = -122.4324;
-        let mapRegion = {
-            latitude: latitude,
-            longitude: longitude,
-            latitudeDelta: 0.922,
-            longitudeDelta: 0.421,
-        };
-        this.setState({ mapRegion: mapRegion, region: mapRegion });
+        // let latitude = 40.78825, longitude = -122.4324;
+        // let mapRegion = {
+        //     latitude: latitude,
+        //     longitude: longitude,
+        //     latitudeDelta: 0.922,
+        //     longitudeDelta: 0.421,
+        // };
+        // this.setState({ mapRegion: mapRegion, region: mapRegion });
     }
 
     componentDidMount(): void {
         this.requestLocationPermission();
-        this.getInitialState();
+        //this.getInitialState();
 
     }
     async  requestLocationPermission() {
@@ -95,8 +101,6 @@ class MapScreen extends Component {
             latitude: region.latitude,
             longitude: region.longitude
         }
-
-
     }
 
     static navigationOptions = {
@@ -104,22 +108,15 @@ class MapScreen extends Component {
     };
 
     onRegionChange = (region) => {
+        this.getMarkers(region.latitude, region.longitude)
         this.setState({ mapRegion: region });
         console.log(region)
     }
     _gotoMe = () => {
-
         Geolocation.getCurrentPosition(
             position => {
-                console.log(position.coords.latitude)
-                this.setState({
-                    mapRegion: {
-                        latitude: position.coords.latitude,
-                        longitude: position.coords.longitude,
-                        latitudeDelta: 0.0922,
-                        longitudeDelta: 0.0421
-                    }
-                });
+                this.getMarkers(position.coords.latitude, position.coords.longitude)
+                this.handleMakerPress(position.coords.latitude, position.coords.longitude)
             },
             (error) => console.log(error.message),
             { enableHighAccuracy: true, timeout: 20000, maximumAge: 1000 },
@@ -130,6 +127,36 @@ class MapScreen extends Component {
         this.setState({ modalState: false })
         let navigate = this.props.navigation.navigate;
         navigate('DetailPlace', { item })
+    }
+    onMapLayout = () => {
+        let region = this.props.navigation.getParam('region');
+        // console.log("region", region)
+        //this.setState({ region: region });
+        this._gotoMe()
+       // this.handleMakerPress(region.latitude, region.longitude)
+
+    }
+    getMarkers = (latitude, longitude) => {
+
+        const data = { latitude, longitude, "radius":1000 }
+        axios.post('http://placetracker.net/RestAPIs/movePlaceRequest', data)
+            .then(res => {
+                if (res.data.status) {
+                    this.setState({ places: res.data.places})
+                }
+                else {
+                    console.log("error")
+                }
+            })
+
+    }
+    handleMakerPress = (latitude, longitude) => {
+        const initialRegion = {
+            latitude, longitude,
+            latitudeDelta: LATITUDE_DELTA,
+            longitudeDelta: LONGITUDE_DELTA,
+        }
+        this.mapView.animateToRegion(initialRegion, 2000);
     }
     _search = () => {
         let { searchStr } = this.state;
@@ -161,26 +188,43 @@ class MapScreen extends Component {
     }
     render() {
         let navigate = this.props.navigation.navigate;
-        let { region, mapRegion } = this.state;
+        let { region, mapRegion, places } = this.state;
         return (
             <View style={{ flex: 1 }}>
                 <MapView
+                    ref={ref => (this.mapView = ref)}
+                    initialRegion={{
+                        ...this.state
+                    }}
                     style={styles.MapContainer}
                     showsUserLocation={true}
-                    region={this.state.region}
-                    // onRegionChange={this.onRegionChange}
+                    provider={PROVIDER_GOOGLE}
+                    showsUserLocation={true}
                     onRegionChangeComplete={this.debounce(this.onRegionChange, 1000, {
                         leading: false,
                         trailing: true
                     })}
+                    onLayout={this.onMapLayout}
                     mapType={this.state.mapType}
 
                 >
-                    {/* <Marker draggable
-                        coordinate={{ latitude: this.state.region.latitude, longitude: this.state.region.longitude }}
-                        title={'title'}
-                        description={'description'}
-                    /> */}
+                  {
+                        places.map(place => {
+                            const { title } = place
+                            return (
+                                <Marker
+                                    zIndex={1000}
+                                    title={title}
+                                    anchor={{ y: 0.75, x: 0.5 }}
+                                   // pinColor={Color.green}
+                                    coordinate={{
+                                        latitude: parseFloat(place.latitude) || 37.78825,
+                                        longitude: parseFloat(place.longitude) || -122.4324
+                                    }}
+                                />
+                            )
+                        })
+                    }
                 </MapView>
                 <View style={styles.bottomContainer}>
                     <View style={{ flexDirection: 'row' }}>
@@ -215,25 +259,26 @@ class MapScreen extends Component {
                             onChangeText={text => this.setState({ searchStr: text })}
                             value={this.state.searchStr}
                             style={{
-                                paddingTop: 10,
+                                //paddingTop: 5,
                                 fontSize: 16,
                                 width: '100%',
                                 // backgroundColor: 'red',
-                                textAlignVertical: 'bottom',
-                                height: 50
+                                textAlignVertical: 'center',
+                                height: 50,
+                                fontFamily: 'serif'
                             }}>
                         </TextInput>
                     </View>
                     <View style={{ padding: 5, alignItems: 'center', justifyContent: 'center', height: '100%', flex: 4, flexDirection: 'row' }}>
                         <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', borderRadius: 3, flex: 1, borderColor: '#3DA9DA', borderWidth: 1, height: '100%', marginHorizontal: 2 }}
                             onPress={this._search}>
-                            <Text style={{ color: 'white' }}>
+                            <Text style={{ color: 'white',fontFamily: 'serif' }}>
                                 {"Search"}
                             </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={{ alignItems: 'center', justifyContent: 'center', borderRadius: 3, flex: 1, borderColor: '#3DA9DA', borderWidth: 1, height: '100%', marginHorizontal: 2 }}
                             onPress={() => navigate("SelectNewPlaceScreen", { region })}>
-                            <Text style={{ color: 'white' }}>
+                            <Text style={{ color: 'white',fontFamily: 'serif' }}>
                                 {"New"}
                             </Text>
                         </TouchableOpacity>
@@ -276,10 +321,10 @@ class MapScreen extends Component {
                                             activeOpacity={0.6}
                                             onPress={() => this._gotoDetail(item)}>
                                             <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, width: '100%' }}>
-                                                <Text style={{ color: 'white', fontSize: 14, fontWeight: '500', marginTop: 14, width: width - 26, }}>
+                                                <Text style={{ color: 'white', fontSize: 14, fontWeight: '500', marginTop: 14, width: width - 26,fontFamily: 'serif' }}>
                                                     {item.title}
                                                 </Text>
-                                                <Text style={{ color: 'white', fontSize: 12, fontWeight: '500', marginTop: 2, width: width - 26,}}>
+                                                <Text style={{ color: 'white', fontSize: 12, fontWeight: '500', marginTop: 2, width: width - 26,fontFamily: 'serif'}}>
                                                     {item.address}
                                                 </Text>
                                             </View>
@@ -341,7 +386,8 @@ const styles = StyleSheet.create({
     },
     MapContainer: {
         flex: 1,
-        width: '100%',
+        width: width,
+        height: height
     },
     confirm_button: {
         width: '100%',

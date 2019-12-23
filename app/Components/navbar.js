@@ -24,7 +24,8 @@ class Navbar extends Component {
                         <Text style={{
                             color: 'white',
                             fontSize: 14, textAlign: 'center',
-                            textAlignVertical: 'center'
+                            textAlignVertical: 'center',
+                            fontFamily: 'serif'
                         }}>{leftText}</Text>
                     </TouchableOpacity>
 
@@ -35,7 +36,8 @@ class Navbar extends Component {
                         fontFamily: '',
                         color: 'white',
                         fontSize: 18, textAlign: 'center',
-                        textAlignVertical: 'center'
+                        textAlignVertical: 'center',
+                        fontFamily: 'serif'
                     }}>{title}</Text>
                 </View>
                 <View style={{ width: 80, justifyContent: 'flex-end', flexDirection: 'row' }}>
@@ -46,7 +48,8 @@ class Navbar extends Component {
                         <Text style={{
                             color: 'white',
                             fontSize: 14, textAlign: 'center',
-                            textAlignVertical: 'center'
+                            textAlignVertical: 'center',
+                            fontFamily: 'serif'
                         }}>{rightText}</Text>
                     </TouchableOpacity>
                 </View>

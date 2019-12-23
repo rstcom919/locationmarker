@@ -12,6 +12,7 @@ import {
     TextInput, PermissionsAndroid,
     Platform, StyleSheet, Text, View, ImageBackground, Dimensions, FlatList, TouchableOpacity
 } from 'react-native';
+import { GOOGLE_API_KEY } from '../../api/Endpoint';
 import Navbar from '../../Components/navbar'
 import MapView from 'react-native-maps';
 import ImagePicker from 'react-native-image-crop-picker'
@@ -19,8 +20,10 @@ import Swiper from 'react-native-swiper'
 import axios from 'axios'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
 import { ActionCreators } from "../../redux/action.js"
 import ActionSheet from 'react-native-actionsheet'
+import Geocoder from 'react-native-geocoding';
 
 const backImage = require('../../Assets/UI/back1.png');
 const myLocation = require('../../Assets/UI/myLocation.png');
@@ -45,7 +48,19 @@ let { width, height } = Dimensions.get('window');//Double
         this.ActionSheet.show()
     }
     componentDidMount() {
+        Geocoder.init(GOOGLE_API_KEY);
         this.requestCameraPermission()
+        let region = this.props.navigation.getParam('region');
+        let {latitude ,longitude } = region;
+        Geocoder.from([latitude, longitude])
+		.then(json => {
+                const { geometry: { location: { lat, lng } }, formatted_address } = json.results[0];
+                console.log('Get Locations', json);
+                this.setState({ loading: false, search: formatted_address, is_formatted_address: true })
+                this.setState({address:formatted_address})
+			//console.log(json);
+		})
+		.catch(error => console.warn(error));
     }
     openCamera = () => {
         ImagePicker.openCamera({
@@ -133,6 +148,9 @@ let { width, height } = Dimensions.get('window');//Double
         const url = "http://placetracker.net/RestAPIs/addPlaceRequest";
         axios.post(url, data, config)
             .then(res => {
+                this.setState({loading:false})
+                let navigate = this.props.navigation.navigate;
+                navigate('MainScreen')
                 console.log(res)
                 // if (res.data.status) {
                 //     this.setState({ searchPlaces: res.data.places, loading: false })
@@ -185,7 +203,7 @@ let { width, height } = Dimensions.get('window');//Double
                                     this._reanderBrand(item)
                                 ))
                             }
-                        </Swiper> : <Text style={{ color: 'white', fontSize: 16 }}>
+                        </Swiper> : <Text style={{ color: 'white', fontSize: 16,fontFamily: 'serif' }}>
                                 {"Click here to select images for new place"}
                             </Text>}
                     </TouchableOpacity>
@@ -268,6 +286,13 @@ let { width, height } = Dimensions.get('window');//Double
                         }
                     }}
                 />
+                  <OrientationLoadingOverlay
+                    visible={this.state.loading}
+                    color="white"
+                    indicatorSize="large"
+                    messageFontSize={12}
+                    message="Login..."
+                />
             </ImageBackground>
         );
     }
@@ -305,9 +330,10 @@ const styles = StyleSheet.create({
         height: 50,
         flexDirection: 'row',
         marginBottom: 10,
-        color: 'white'
+        color: 'white',
+        fontFamily: 'serif'
     },
-    leftTextStyle: { fontSize: 16, textAlign: 'center', color: 'white', textAlignVertical: 'center' }
+    leftTextStyle: {fontFamily: 'serif', fontSize: 16, textAlign: 'center', color: 'white', textAlignVertical: 'center' }
 });
 
 const mapStateToProps = ({ auth }) => {

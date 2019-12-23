@@ -60,4 +60,20 @@ export default {
         // shadowRadius: 1.41,
         // elevation: 2
     },
+    topContainer: {
+       // position: 'absolute',
+        //backgroundColor: '#686868',
+        zIndex: 999,
+        justifyContent: 'center',
+        width: width - 50,
+        height: 40,
+        borderRadius: 5,
+        borderColor:'white',
+        borderWidth:1,
+        marginHorizontal: 10,
+        marginLeft:30,
+        marginTop: 10,
+        top: 0,
+        flexDirection: 'row'
+    },
 };

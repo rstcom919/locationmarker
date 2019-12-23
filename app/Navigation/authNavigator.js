@@ -2,7 +2,10 @@ import React from "react"
 import { createStackNavigator } from 'react-navigation-stack'
 import LandingScreen from '../Screens/landing'
 import SignupScreen from '../Screens/Signup'
-import LoginScreen from '../Screens/Login'
+import ForgetScreen from '../Screens/forgetPassword'
+import VerifyCodeScreen from '../Screens/verifyCode'
+
+
 import { fromLeft, zoomIn, zoomOut,fromRight } from 'react-navigation-transitions'
 
 
@@ -35,8 +38,9 @@ const handleCustomTransition = ({ scenes }) => {
 const AuthStack = createStackNavigator(
   {
     Welcome: LandingScreen,
-    Login: LoginScreen,
     Register: SignupScreen,
+    ForgetScreen: ForgetScreen,
+    VerifyCodeScreen
     // Unlock: Authentification.UnlockAccountScreen,
     // Reset: Authentification.ResetPasswordScreen,
     // Activate: Authentification.ActivateAccountScreen,

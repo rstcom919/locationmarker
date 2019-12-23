@@ -19,6 +19,7 @@ import AsyncStorage from '@react-native-community/async-storage';//`${ADMIN_ENDP
 import SplashScreen from 'react-native-splash-screen'
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
+import axios from 'axios'
 import OrientationLoadingOverlay from 'react-native-orientation-loading-overlay';
 import { ActionCreators } from "../../redux/action.js"
 
@@ -105,121 +106,53 @@ const animationImages = [
     require('../../Assets/UI/mark1.png'),]
 class Landing extends Component {
     state = {
-        logoMarginAnim: new Animated.Value(screenHeight / 4),
-        spinnerOpacityAnim: new Animated.Value(1),
-        contentMarginAnim: new Animated.Value(30),
-        contentOpacityAnim: new Animated.Value(0),
         imageIndex: 0,
-        userName: "",
-        password: ""
+        veri_code: "",
+        new_password: "",
+        email:""
     }
-    componentDidMount = () => {
-        this.autoLogin()
-        this.splashHandler = setInterval(() => {
-            this.disableSplashScreen()
-        }, 2000)
-        this.showSignInForm();
-        setInterval(() => {
-            var imageIndex = this.state.imageIndex + 1;
-            if (imageIndex >= animationImages.length) {
-                imageIndex = 0;
-            }
-            this.setState({ imageIndex: imageIndex })
-        }, 1000);
+    
+  
+    _handleBack = async () => {
+        let navigation = this.props.navigation;
+        navigation.goBack()
     }
-    disableSplashScreen() {
-        SplashScreen.hide()
-        clearInterval(this.splashHandler)
-    }
-    async autoLogin() {
-        let user_info = {}
-        const logedin = await AsyncStorage.getItem("logedin")
-        const email = await AsyncStorage.getItem("loginname")
-        const password = await AsyncStorage.getItem("password")
-        if (logedin === "true")
-            this.props.loginUser(email, password, "email", user_info, true).then((result) => {
-                alert(result.message)
-                this.setState({ password: "" })
-            }).catch((error) => {
-                alert(error)
+    verifyFunc = () =>{
+        let email = this.props.navigation.getParam('email');
+        let navigate = this.props.navigation.navigate;
+        this.setState({ loading: true })
+        let { veri_code, new_password } = this.state;
+        const data = { email,veri_code, new_password  }
+        axios.post('http://placetracker.net/RestAPIs/recoveryPassword', data)
+            .then(res => {
+                console.log("verify--", res.data)
+                if (res.data.status) {
+                    this.setState({ loading: false })
+                    navigate('MainScreen')
+                }
+                else {
+                    this.setState({ loading: false })
+                    console.log("error")
+                }
             })
     }
-    showSignInForm = () => {
-        Animated.sequence([
-            Animated.parallel([
-                Animated.timing(
-                    this.state.logoMarginAnim,
-                    {
-                        toValue: 70,
-                        duration: 1000,
-                        easing: Easing.elastic(),
-                    },
-                ),
-                Animated.timing(
-                    this.state.spinnerOpacityAnim,
-                    {
-                        toValue: 0,
-                        duration: 800,
-                        easing: Easing.elastic(),
-                    },
-                ),
-            ]),
-            Animated.parallel([
-                Animated.timing(
-                    this.state.contentMarginAnim,
-                    {
-                        toValue: 20,
-                        duration: 800,
-                    },
-                ),
-                Animated.timing(
-                    this.state.contentOpacityAnim,
-                    {
-                        toValue: 1,
-                        duration: 800,
-                    },
-                ),
-            ]),
-        ]).start();
-    }
-    _handleLogin = async () => {
-        let user_info = {}
-        let { userName, password } = this.state
-        if (userName == "" || password == "") return alert("Please Enter Your Information!")
-        this.props.loginUser(userName, password, "email", user_info, true).then((result) => {
-            alert(result.message)
-            this.setState({ password: "" })
-        }).catch((error) => {
-            alert(error)
-        })
-    }
-
     render() {
         let navigate = this.props.navigation.navigate;
-
         return (
             <ImageBackground
                 source={backImage}
                 style={styles.backgroundImage}>
-
-                <Animated.View
-                    style={[styles.spinnerContainer, { opacity: this.state.spinnerOpacityAnim }]}
-                >
-                    <ActivityIndicator size="small" color="#fff" />
-                </Animated.View>
-
-                <ScrollView style={styles.container}>
-                    <Animated.View style={{ alignItems: 'center', marginTop: this.state.logoMarginAnim }}>
+                 <ScrollView style={styles.container}>
+                    <View style={{ alignItems: 'center', marginTop: 70 }}>
                         <Image
                             source={animationImages[this.state.imageIndex]}
                             style={styles.logoImage}
                         />
-                    </Animated.View>
+                    </View>
 
-                    <Animated.View
+                    <View
                         style={{
-                            marginTop: this.state.contentMarginAnim,
-                            opacity: this.state.contentOpacityAnim,
+                            marginTop: 30
                         }}
                     >
                         <View style={{ marginTop: 35, justifyContent: 'center', alignItems: 'center' }}>
@@ -236,12 +169,12 @@ class Landing extends Component {
                                     returnKeyType="next"
                                     autoFocus={false}
                                     underlineColorAndroid="transparent"
-                                    placeholder={"Email Address"}
+                                    placeholder={"Verify Code"}
                                     placeholderTextColor="gray"
                                     autoCapitalize="none"
-                                    onChangeText={text => this.setState({ userName: text })}
+                                    onChangeText={text => this.setState({ veri_code: text })}
                                     onSubmitEditing={() => { this.secondTextInput.focus(); }}
-                                    value={this.state.userName}
+                                    value={this.state.veri_code}
                                 />
                             </View>
                             <View style={styles.phone_input} >
@@ -261,35 +194,31 @@ class Landing extends Component {
                                     placeholderTextColor="gray"
                                     autoCapitalize="none"
                                     secureTextEntry={true}
-                                    onChangeText={text => this.setState({ password: text })}
+                                    onChangeText={text => this.setState({ new_password: text })}
                                     onSubmitEditing={() => { this.secondTextInput.focus(); }}
-                                    value={this.state.password}
+                                    value={this.state.new_password}
                                 />
                             </View>
-                            <View style={{ width: '80%', justifyContent: 'flex-end', alignItems: 'flex-end' }}>
-                                <Text style={{ color: 'yellow',fontFamily: 'serif' }} onPress={() => navigate('ForgetScreen')}>
-                                    {"Forget Password?"}
-                                </Text>
-                            </View>
+                          
                             <View style={{ marginTop: 15, flexDirection: 'row', width: '80%', justifyContent: 'center', alignItems: 'center' }}>
                                 <TouchableOpacity
-                                    onPress={this._handleLogin}
+                                    onPress={this._handleBack}
                                     style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 9, marginHorizontal: 10, width: '40%', height: 35, backgroundColor: "#555555" }}>
                                     <Text style={{ color: 'white', fontSize: 16,fontFamily: 'serif' }}>
-                                        {"SignIn"}
+                                        {"Cancel"}
                                     </Text>
                                 </TouchableOpacity>
                                 <TouchableOpacity
                                     style={{ justifyContent: 'center', alignItems: 'center', borderRadius: 9, marginHorizontal: 10, width: '40%', height: 35, backgroundColor: "#555555" }}
-                                    onPress={() => { navigate('Register') }}>
+                                    onPress={this.verifyFunc}>
                                     <Text style={{ color: 'white', fontSize: 16,fontFamily: 'serif' }}>
-                                        {"SignUp"}
+                                        {"Verify"}
                                     </Text>
                                 </TouchableOpacity>
                             </View>
-                         </View>
+                        </View>
 
-                    </Animated.View>
+                    </View>
                 </ScrollView>
                 <OrientationLoadingOverlay
                     visible={this.props.loading}
