@@ -6,7 +6,8 @@ export const AuthReducer = (
 		loading: false,
 		error: false,
 		errorMessage: "",
-		places:[]
+		places:[],
+		friends:[]
 	},
 	action) => {
 	switch (action.type) {
@@ -25,6 +26,7 @@ export const AuthReducer = (
 				loginCompleted: true,
 				user: action.payload.user_info,
 				places:action.payload.places,
+				friends:action.payload.friends
 			};
 
 		case ActionTypes.LOGIN_USER_FAIL:

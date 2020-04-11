@@ -296,7 +296,7 @@ class Landing extends Component {
                     color="white"
                     indicatorSize="large"
                     messageFontSize={12}
-                    message="Login..."
+                    message="Loading..."
                 />
             </ImageBackground>
         );

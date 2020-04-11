@@ -17,6 +17,7 @@ import {
     TouchableWithoutFeedback,
     PermissionsAndroid,
     FlatList,
+    Alert,
     Modal,
 } from 'react-native';
 import { connect } from 'react-redux'
@@ -50,8 +51,8 @@ class Signup extends Component {
         searchFlag: false,
         name_keyword: "",
         users: [],
-        loading:false,
-        modalState:false
+        loading: false,
+        modalState: false
     }
     _search = () => {
         let { name_keyword } = this.state
@@ -59,8 +60,9 @@ class Signup extends Component {
         this.setState({ modalState: true, loading: true })
         axios.post('http://placetracker.net/RestAPIs/friendSearchRequest', data)
             .then(res => {
-                console.log("users------", res.data.status)
+
                 if (res.data.status) {
+                    //  console.log("users------", res.data.users)
                     this.setState({ users: res.data.users, loading: false })
                 }
                 else {
@@ -70,7 +72,34 @@ class Signup extends Component {
             })
 
     }
-
+    _addFriend = (item) => {
+        this.setState({ loading: true })
+        let { id } = this.props.UserInfo;
+        const data = { user_id: id, friend_id: item.id }
+        axios.post('http://placetracker.net/RestAPIs/friendAddRequest', data)
+            .then(res => {
+                this.setState({ loading: false })
+                if (res.data.status) {
+                    console.log("data------", res.data)
+                }
+            })
+    }
+    customerAlert = (item) => {
+        this.setState({ modalState: false, name_keyword: "" })
+        Alert.alert(
+            'Warning',
+            "Will you really add Name to your friend List",
+            [
+                {
+                    text: 'Cancel',
+                    onPress: () => console.log('Cancel Pressed'),
+                    style: 'cancel',
+                },
+                { text: 'OK', onPress: () => this._addFriend(item) },
+            ],
+            { cancelable: false },
+        );
+    }
     render() {
         let { searchFlag } = this.state
         return (
@@ -138,7 +167,43 @@ class Signup extends Component {
                             </TouchableOpacity>
                         </View>
                     </View>}
+                    <View style={{
+                        flexDirection: 'column',
+                        width: width - 50, height: height - 300,
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        padding: 5
+                    }}>
+                        <FlatList
+                            extraData={this.props}
+                            data={this.props.friends}
+                            horizontal={false}
+                            numColumns={1}
+                            renderItem={({ item, index }) => {
+                                return <TouchableOpacity
+                                    key={index}
+                                    activeOpacity={0.6}
+                                    onPress={() => this.customerAlert(item)}>
+                                    <View style={{ marginVertical: 4, borderBottomColor: 'white', borderBottomWidth: 0, width: '100%', flexDirection: "row" }}>
 
+                                        <Image
+                                            source={{ uri: item.photo }}
+                                            style={{ marginTop: 0, width: 50, height: 50, borderRadius: 25 }}
+                                        />
+                                        <View style={{ flexDirection: 'column' }}>
+                                            <Text style={{ color: 'white', fontSize: 16, fontWeight: '500', marginTop: 2, width: width - 26, }}>
+                                                {item.first_name + " " + item.last_name}
+                                            </Text>
+                                            <Text style={{ color: 'white', fontSize: 12, fontWeight: '500', marginTop: 2, width: width - 26, }}>
+                                                ({item.email})
+                                                </Text>
+                                        </View>
+                                    </View>
+                                </TouchableOpacity>
+                            }}
+                            keyExtractor={(index) => index.toString()}
+                        />
+                    </View>
                 </View>
                 <Modal
                     animationType="none"
@@ -174,14 +239,21 @@ class Signup extends Component {
                                         return <TouchableOpacity
                                             key={index}
                                             activeOpacity={0.6}
-                                            onPress={() => this._gotoDetail(item)}>
-                                            <View style={{ borderBottomColor: 'white', borderBottomWidth: 1, width: '100%' }}>
-                                                <Text style={{ color: 'white', fontSize: 14, fontWeight: '500', marginTop: 14, width: width - 26, }}>
-                                                    a
+                                            onPress={() => this.customerAlert(item)}>
+                                            <View style={{ marginVertical: 4, borderBottomColor: 'white', borderBottomWidth: 0, width: '100%', flexDirection: "row" }}>
+
+                                                <Image
+                                                    source={{ uri: item.photo }}
+                                                    style={{ marginTop: 0, width: 50, height: 50, borderRadius: 25 }}
+                                                />
+                                                <View style={{ flexDirection: 'column' }}>
+                                                    <Text style={{ color: 'white', fontSize: 16, fontWeight: '500', marginTop: 2, width: width - 26, }}>
+                                                        {item.first_name + " " + item.last_name}
+                                                    </Text>
+                                                    <Text style={{ color: 'white', fontSize: 12, fontWeight: '500', marginTop: 2, width: width - 26, }}>
+                                                        ({item.email})
                                                 </Text>
-                                                <Text style={{ color: 'white', fontSize: 12, fontWeight: '500', marginTop: 2, width: width - 26, }}>
-                                                    b
-                                                </Text>
+                                                </View>
                                             </View>
                                         </TouchableOpacity>
                                     }}
@@ -212,8 +284,10 @@ class Signup extends Component {
 }
 const mapStateToProps = ({ auth }) => {
     return {
-        UserInfo: auth,
-        loading: auth.loading
+        UserInfo: auth.user,
+        loading: auth.loading,
+        friends: auth.friends,
+
     }
 }
 const mapDispatchToProps = (dispatch) => {

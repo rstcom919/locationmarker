@@ -7,6 +7,7 @@ import SettingScreen from '../Screens/settingScreen'
 import SelectNewPlaceScreen from '../Screens/selectNewPlace'
 import AddPlace from '../Screens/addPlace'
 import DetailPlace from '../Screens/detailPlace'
+import EditPlace from '../Screens/editPlace'
 
 const handleCustomTransition = ({ scenes }) => {
   const prevScene = scenes[scenes.length - 2];
@@ -32,7 +33,8 @@ const HomeStack = createStackNavigator({
     SettingScreen,
     SelectNewPlaceScreen,
     AddPlace,
-    DetailPlace  
+    DetailPlace,
+    EditPlace  
 }, {
   transitionConfig: (nav) => handleCustomTransition(nav),
     defaultNavigationOptions: ({

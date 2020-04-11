@@ -9,16 +9,8 @@
 import React, { Component } from 'react';
 import {
     Image,
-    TextInput, 
-    PermissionsAndroid,
-    Platform, 
-    StyleSheet, 
-    Text, 
-    View, 
-    ImageBackground, 
-    Dimensions, 
-    FlatList, 
-    TouchableOpacity
+    TextInput, PermissionsAndroid,
+    Platform, StyleSheet, Text, View, ImageBackground, Dimensions, FlatList, TouchableOpacity
 } from 'react-native';
 import { GOOGLE_API_KEY } from '../../api/Endpoint';
 import Navbar from '../../Components/navbar'
@@ -40,43 +32,41 @@ let { width, height } = Dimensions.get('window');//Double
 
 
 
- class App extends Component {
-     
-        state = {
-            region: {
-            },
-            loading: false,
-            mapType: 'standard',
-            images: [],
-            title: "",
-            address: "",
-            note: "",
-            posted_phone_number:"",
-        }
-   
+class App extends Component {
+
+    state = {
+        region: {
+        },
+        loading: false,
+        mapType: 'standard',
+        images: [],
+        title: "",
+        address: "",
+        note: "",
+        posted_phone_number: "",
+        photos: [],
+    }
+
     showActionSheet = () => {
         this.ActionSheet.show()
     }
     componentDidMount() {
-        let {  phone_number } = this.props.UserInfo;
-
-        Geocoder.init(GOOGLE_API_KEY);
         this.requestCameraPermission()
-        let region = this.props.navigation.getParam('region');
-        let {latitude ,longitude } = region;
-        Geocoder.from([latitude, longitude])
-		.then(json => {
-                const { geometry: { location: { lat, lng } }, formatted_address } = json.results[0];
-                //city
-                console.log(this.getCity(json.results[0].address_components));
-           //country
-           console.log(this.getCountry(json.results[0].address_components));
-                this.setState({ loading: false, search: formatted_address, is_formatted_address: true,address:formatted_address,posted_phone_number: phone_number})
-                this.setState({address:formatted_address})
-		})
-		.catch(error => console.warn(error));
+        let item = this.props.navigation.getParam('item');
+        let { title, photos, address, posted_phone_number, note, visitors } = item;
+        this.setState({
+            loading: false,
+            is_formatted_address: true,
+            address: address,
+            note: note,
+            title: title,
+            posted_phone_number: posted_phone_number,
+            photos: photos
+        })
+
+
     }
-     getCountry(addrComponents) {
+    getCountry(addrComponents) {
         for (var i = 0; i < addrComponents.length; i++) {
             if (addrComponents[i].types[0] == "country") {
                 return addrComponents[i].long_name;
@@ -91,20 +81,20 @@ let { width, height } = Dimensions.get('window');//Double
     }
     getCity(addrComponents) {
         for (var i = 0; i < addrComponents.length; i++) {
-           
-            for (var j = 0; j < addrComponents[i].types.length ; j++) {
+
+            for (var j = 0; j < addrComponents[i].types.length; j++) {
                 if (addrComponents[i].types[j] == "administrative_area_level_1") {
-                    return  addrComponents[i].long_name;
+                    return addrComponents[i].long_name;
                 }
-                
+
             }
         }
         return false;
 
 
-       
+
     }
-    
+
     openCamera = () => {
         ImagePicker.openCamera({
             width: 300,
@@ -131,9 +121,11 @@ let { width, height } = Dimensions.get('window');//Double
         })
     }
     _reanderBrand = (image) => {
+        let { images } = this.state;
+
         return (
             <Image
-                source={{ uri: image.path }}
+                source={{ uri:images.length > 0  ?image.path:image }}
                 style={{ width: '100%', height: '100%' }}
                 resizeMode='stretch' />
         )
@@ -161,25 +153,23 @@ let { width, height } = Dimensions.get('window');//Double
             console.warn(err);
         }
     }
-    _savePlace = () => {
-        this.setState({loading: true})
-        let { id } = this.props.UserInfo;
-        let region = this.props.navigation.getParam('region');
-        let {latitude ,longitude } = region;
-        let { images, title, address, note,posted_phone_number } = this.state;
+    _editPlace = () => {
+        this.setState({loading:true})
+        let item = this.props.navigation.getParam('item');
+        let { place_id } = item;
+  
+        let { images, title, address, note, posted_phone_number } = this.state;
         const data = new FormData();
-        if (title == "" || posted_phone_number == "" || address == "" || note == "" || images.length == 0) return alert("Please Enter Your Information!")
+        if (title == "" || posted_phone_number == "" || address == "" || note == "" ) return alert("Please Enter Your Information!")
 
-        data.append('user_id', id); // you can append anyone.
+        data.append('place_id', place_id); // you can append anyone.
         data.append('title', title);
         data.append('posted_phone_number', posted_phone_number);
-        data.append('latitude', latitude);
-        data.append('longitude', longitude);
         data.append('address', address);
         data.append('note', note);
         images.map((item, index) => {
             var filename = item.path.replace(/^.*[\\\/]/, '')
-       //     console.log("filename---",filename)
+            //     console.log("filename---",filename)
             data.append(`photo${index}`, {
                 uri: item.path,
                 type: 'image/jpg', // or photo.type
@@ -191,16 +181,18 @@ let { width, height } = Dimensions.get('window');//Double
                 'content-type': 'multipart/form-data'
             }
         }
-       
-        const url = "http://placetracker.net/RestAPIs/addPlaceRequest";
+
+        const url = "http://placetracker.net/RestAPIs/editPlaceRequest";
         axios.post(url, data, config)
             .then(res => {
+                this.setState({ loading: false })
                 let navigate = this.props.navigation.navigate;
                 this._updateData();
-                this.setState({loading:false})
                 navigate('MainScreen')
-             })
-  }
+             
+            })
+
+    }
     async _updateData() {
         const logedin = await AsyncStorage.getItem("logedin")
         const email = await AsyncStorage.getItem("loginname")
@@ -214,21 +206,24 @@ let { width, height } = Dimensions.get('window');//Double
             })
     }
     render() {
-        let navigate = this.props.navigation.navigate;
-        let { images } = this.state;
+        let navigation = this.props.navigation;
+        let { images, photos } = this.state;
+        let temp = photos.toString();
+        let photoArray = temp.split(",");
+        let showImages = images.length > 0 ? images : photoArray
         return (
             <ImageBackground
                 source={backImage}
                 style={styles.backgroundImage}>
                 <View
-                
-                 style={styles.navbar}>
+
+                    style={styles.navbar}>
                     <Navbar
-                        title={"Add Place"}
-                        leftText={"Back"}
+                        title={"Edit Place"}
+                        leftText={"Cancel"}
                         rightText={"Save"}
-                        leftAction={() => navigate('SelectNewPlaceScreen')}
-                        rightAction={this._savePlace}
+                        leftAction={() =>  navigation.goBack()}
+                        rightAction={this._editPlace}
                     />
                 </View>
                 <View style={{ width: '100%', flex: 4, paddingTop: 50, justifyContent: 'center', alignItems: 'center' }}>
@@ -240,7 +235,7 @@ let { width, height } = Dimensions.get('window');//Double
                     }}
                         onPress={this.showActionSheet}
                     >
-                        {images.length > 0 ? <Swiper
+                        <Swiper
                             style={{ width: width - 20, }}
                             autoplay={true}
                             dotColor='transparent'
@@ -249,14 +244,12 @@ let { width, height } = Dimensions.get('window');//Double
                             //   activeDotStyle={Style.SwipeDotStyle}
                             showsButtons={false}>
                             {
-                                images.map((item, index) => (
+                                showImages.map((item, index) => (
 
                                     this._reanderBrand(item)
                                 ))
                             }
-                        </Swiper> : <Text style={{ color: 'white', fontSize: 16,fontFamily: 'serif' }}>
-                                {"Click here to select images for new place"}
-                            </Text>}
+                        </Swiper>
                     </TouchableOpacity>
                 </View>
                 <View style={{ width: '100%', flex: 9, flexDirection: 'column', alignItems: 'center' }}>
@@ -356,7 +349,7 @@ let { width, height } = Dimensions.get('window');//Double
                         }
                     }}
                 />
-                  <OrientationLoadingOverlay
+                <OrientationLoadingOverlay
                     visible={this.state.loading}
                     color="white"
                     indicatorSize="large"
@@ -403,7 +396,7 @@ const styles = StyleSheet.create({
         color: 'white',
         fontFamily: 'serif'
     },
-    leftTextStyle: {fontFamily: 'serif', fontSize: 16, textAlign: 'center', color: 'white', textAlignVertical: 'center' }
+    leftTextStyle: { fontFamily: 'serif', fontSize: 16, textAlign: 'center', color: 'white', textAlignVertical: 'center' }
 });
 
 const mapStateToProps = ({ auth }) => {

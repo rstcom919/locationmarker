@@ -159,7 +159,9 @@ class MapScreen extends Component {
         this.mapView.animateToRegion(initialRegion, 2000);
     }
     _search = () => {
+        
         let { searchStr } = this.state;
+        if(searchStr == "") return null;
         this.setState({ modalState: true, loading: true })
         const data = { "title_or_address_keyword": searchStr }
         axios.post('http://placetracker.net/RestAPIs/searchPlaceRequest', data)

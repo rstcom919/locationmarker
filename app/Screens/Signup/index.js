@@ -43,7 +43,7 @@ class Signup extends Component {
         password: "",
         email: "",
         phone_number: "",
-        uploadURL: null,
+        uploadURL: "",
     }
 
     componentDidMount = () => {
@@ -116,7 +116,7 @@ class Signup extends Component {
     _handleSignup = () => {
         let user_info = {}
         let { first_name, last_name, password, email, phone_number, uploadURL } = this.state
-        if (first_name == "" || last_name == "" || password == "" || phone_number == "" || email == "") return this.AlertMessage("Please Enter Your Information!")
+        if (first_name == "" || last_name == "" || password == "" || phone_number == "" || email == "" || uploadURL=="") return alert("Please Enter Your Information!")
         this.props.registerUser(first_name, last_name, password, email, phone_number, uploadURL).then((result) => {
             this.props.loginUser(email, password, "email", user_info, true).then((result) => {
                 alert(result.message)
@@ -312,7 +312,7 @@ class Signup extends Component {
                     color="white"
                     indicatorSize="large"
                     messageFontSize={12}
-                    message="Login..."
+                    message="Loading..."
                 />
             </ImageBackground>
         );

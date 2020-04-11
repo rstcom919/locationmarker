@@ -20,32 +20,32 @@ export const registerUser = (first_name, last_name, password, email, phone_numbe
 		});
 		const url = Endpoint + "createAccountRequest";
 		return new Promise((resolve, reject) => {
-		fetch(url, {
-			method: 'POST',
-			headers: {
-				// Accept: 'application/json',
-				'Content-Type': 'multipart/form-data',
-				// dataType: 'json',
-				// 'X-Requested-With': 'XMLHttpRequest',
-			},
-			body: data
-		})
-			.then((response) => response.json())
-			.then((responseJson) => {
-				console.log(responseJson)
-				if (responseJson.status == true) {
-					resolve(responseJson);
-				} else {
-					loginUserFail(dispatch, responseJson.message);
-					return resolve(responseJson);
-				}
+			fetch(url, {
+				method: 'POST',
+				headers: {
+					// Accept: 'application/json',
+					'Content-Type': 'multipart/form-data',
+					// dataType: 'json',
+					// 'X-Requested-With': 'XMLHttpRequest',
+				},
+				body: data
 			})
-			.catch((error) => {
-				//	alert(error)
-				//	AlertMessage(error)
-				loginUserFail(dispatch, "Intertnet Connection Error!")
-			});
-		})	
+				.then((response) => response.json())
+				.then((responseJson) => {
+					console.log(responseJson)
+					if (responseJson.status == true) {
+						resolve(responseJson);
+					} else {
+						loginUserFail(dispatch, responseJson.message);
+						return resolve(responseJson);
+					}
+				})
+				.catch((error) => {
+					//	alert(error)
+					//	AlertMessage(error)
+					loginUserFail(dispatch, "Intertnet Connection Error!")
+				});
+		})
 	};
 };
 export const loginUser = (email, password, type, user_info, savepassword) => {
@@ -110,6 +110,15 @@ const loginUserSuccess = (dispatch, data, savepassword, loginname, password) => 
 	});
 
 };
+const updatedSuccess = (dispatch, data) => {
+
+
+	dispatch({
+		type: ActionTypes.LOGIN_USER_SUCCESS,
+		payload: data
+	});
+
+};
 
 
 export const autoLogin = (data) => {
@@ -133,11 +142,10 @@ export const autoLogin = (data) => {
 			.then((responseJson) => {
 				//alert(JSON.stringify(responseJson))
 				if (responseJson.status == true) {
-					loginUserSuccess(dispatch, responseJson.data, savepassword, loginname, password);
+					loginUserSuccess(dispatch, responseJson, savepassword, loginname, password);
 				} else {
 					loginUserFail(dispatch, responseJson.message);
 					alert(responseJson.message)
-
 				}
 
 			})
@@ -153,6 +161,44 @@ export const autoLogin = (data) => {
 			payload: data
 		});
 	};
+};
+export const updateData = (email, password) => {
+
+	return dispatch => {
+		dispatch({ type: ActionTypes.LOGIN_USER_START });
+		const url = Endpoint + "loginRequest";
+		return new Promise((resolve, reject) => {
+			fetch(url, {
+				method: 'POST',
+				headers: {
+					Accept: 'application/json',
+					'Content-Type': 'application/json',
+					dataType: 'json',
+					'X-Requested-With': 'XMLHttpRequest',
+				},
+				body: JSON.stringify({
+					email,
+					password,
+				})
+			})
+				.then((response) => response.json())
+				.then((responseJson) => {
+					if (responseJson.status == true) {
+						updatedSuccess(dispatch, responseJson);
+
+					} else {
+						loginUserFail(dispatch, responseJson.message);
+						return resolve(responseJson);
+					}
+
+				})
+				.catch((error) => {
+					loginUserFail(dispatch, "Intertnet Connection Error!")
+					return reject(error);
+				});
+		})
+	};
+
 };
 
 export const logout = () => {

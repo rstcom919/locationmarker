@@ -87,6 +87,11 @@ export default class App extends Component<Props> {
             { cancelable: false },
         );
     }
+    _gotEditPlace =()=> {
+        let navigate = this.props.navigation.navigate;
+        let item = this.props.navigation.getParam('item');
+        navigate('EditPlace',{item})
+    }
     render() {
         let { likeFlag, dislikeFlag, likes, dislikes } = this.state
         let navigate = this.props.navigation.navigate;
@@ -95,7 +100,7 @@ export default class App extends Component<Props> {
 
         let temp = photos.toString();
         let photoArray = temp.split(",");
-        photoArray.splice(0, 1);
+        //photoArray.splice(0, 1);
         return (
             <ImageBackground
                 source={backImage}
@@ -104,8 +109,9 @@ export default class App extends Component<Props> {
                     <Navbar
                         title={title}
                         leftText={"Back"}
-                        rightText={""}
+                        rightText={"Edit"}
                         leftAction={() => navigate('MainScreen')}
+                        rightAction={this._gotEditPlace}
                     />
                 </View>
                 <View style={{ width: '100%', flex: 4, paddingTop: 50, justifyContent: 'center', alignItems: 'center' }}>
