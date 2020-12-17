@@ -6,19 +6,25 @@
  * @flow
  */
 
-import React, { Component } from 'react';
-import { Platform, StyleSheet, Text, View, ImageBackground, Dimensions, FlatList, TouchableOpacity } from 'react-native';
-import Navbar from '../../Components/navbar'
-import { TabView, SceneMap } from 'react-native-tab-view';
-import Profile from './components/profile'
-import Friends from './components/friends'
-import Places from './components/places'
-import General from './components/general'
-
-
+import React, {Component} from 'react';
+import {
+  Platform,
+  StyleSheet,
+  Text,
+  View,
+  ImageBackground,
+  Dimensions,
+  FlatList,
+  TouchableOpacity,
+} from 'react-native';
+import Navbar from '../../Components/navbar';
+import {TabView, SceneMap} from 'react-native-tab-view';
+import Profile from './components/profile';
+import Friends from './components/friends';
+import Places from './components/places';
+import General from './components/general';
 
 const backImage = require('../../Assets/UI/back1.png');
-
 
 type Props = {};
 export default class App extends Component<Props> {
@@ -28,10 +34,10 @@ export default class App extends Component<Props> {
       isChecked: [],
       index: 0,
       routes: [
-        { key: "1", title: 'Profile' },
-        { key: "2", title: 'Friends' },
-        { key: "3", title: 'Places ' },
-        { key: "4", title: 'General' },
+        {key: '1', title: 'Profile'},
+        {key: '2', title: 'Friends'},
+        {key: '3', title: 'Places '},
+        {key: '4', title: 'General'},
       ],
     };
   }
@@ -39,70 +45,95 @@ export default class App extends Component<Props> {
   TabBar = props => {
     const routes = this.state.routes;
     const activeRouteIndex = this.state.index;
-    const activeColor = "gray";
+    const activeColor = 'gray';
     const inActiveColor = '#222';
     return (
-      <View style={{ width: '100%', justifyContent: 'center', flexDirection: 'row', alignItems: "center", paddingHorizontal: 8 }}>
+      <View
+        style={{
+          width: '100%',
+          justifyContent: 'center',
+          flexDirection: 'row',
+          alignItems: 'center',
+          paddingHorizontal: 8,
+        }}>
         <FlatList
           data={routes}
           horizontal={true}
           extraData={this.state}
           initialScrollIndex={this.state.index}
-          renderItem={({ item, index }) => {
+          renderItem={({item, index}) => {
             return (
-              <TouchableOpacity activeOpacity={0.7} onPress={() => {
-                this.setState({ index: index })
-              }
-              }
-                style={[styles.tabItemWrapper, {
-                  borderColor: index == activeRouteIndex ? "white" : "gray",
-                  borderBottomWidth: index == activeRouteIndex ? 3 : 3
-                }]}>
-                <Text style={[styles.tabItemText, { color: index == activeRouteIndex ? 'white' : 'white' }]}>{item.title}</Text>
+              <TouchableOpacity
+                activeOpacity={0.7}
+                onPress={() => {
+                  this.setState({index: index});
+                }}
+                style={[
+                  styles.tabItemWrapper,
+                  {
+                    borderColor: index == activeRouteIndex ? 'white' : 'gray',
+                    borderBottomWidth: index == activeRouteIndex ? 3 : 3,
+                  },
+                ]}>
+                <Text
+                  style={[
+                    styles.tabItemText,
+                    {color: index == activeRouteIndex ? 'white' : 'white'},
+                  ]}>
+                  {item.title}
+                </Text>
               </TouchableOpacity>
-            )
+            );
           }}
           keyExtractor={item => item.id}
         />
-
       </View>
-    )
-  }
-  renderScene = ({ route, jumpTo }) => {
-
+    );
+  };
+  renderScene = ({route, jumpTo}) => {
     let navigate = this.props.navigation.navigate;
     return (
       <View style={styles.container}>
-        {
-          route.key == "1" ? <Profile /> : 
-          route.key == "2" ? <Friends/> : 
-          route.key == "3" ? <Places navigate={navigate}/> :
-          <General/> 
-        }
+        {route.key == '1' ? (
+          <Profile />
+        ) : route.key == '2' ? (
+          <Friends />
+        ) : route.key == '3' ? (
+          <Places navigate={navigate} />
+        ) : (
+          <General />
+        )}
       </View>
-    )
+    );
   };
   render() {
     let navigate = this.props.navigation.navigate;
     return (
-      <ImageBackground
-        source={backImage}
-        style={styles.backgroundImage}>
+      <ImageBackground source={backImage} style={styles.backgroundImage}>
         <View style={styles.navbar}>
-          <Navbar 
-           title ={"Setting"}
-           leftText = {"Back"}
-           rightText = {""}
-           leftAction = {()=>navigate('MainScreen')}
+          <Navbar
+            title={'Setting'}
+            leftText={'Back'}
+            rightText={''}
+            leftAction={() => navigate('MainScreen')}
           />
         </View>
-        <View style={[styles.container, { marginTop: 40, width: '100%', justifyContent: 'center', flexDirection: 'row' }]}>
+        <View
+          style={[
+            styles.container,
+            {
+              marginTop: 40,
+              width: '100%',
+              justifyContent: 'center',
+              flexDirection: 'row',
+            },
+          ]}>
           <TabView
-            initialLayout={{ width: Dimensions.get('window').width }}
+            initialLayout={{width: Dimensions.get('window').width}}
             navigationState={this.state}
             renderTabBar={this.TabBar}
             renderScene={this.renderScene}
-            onIndexChange={index => this.setState({ index })}
+            onIndexChange={index => this.setState({index})}
           />
         </View>
       </ImageBackground>
@@ -145,7 +176,7 @@ const styles = StyleSheet.create({
     //borderBottomWidth: 1,
     height: 40,
     justifyContent: 'center',
-    zIndex: 999
+    zIndex: 999,
   },
   tabItemWrapper: {
     paddingBottom: 5,
@@ -153,11 +184,11 @@ const styles = StyleSheet.create({
     width: (Dimensions.get('window').width - 16) / 4 - 2,
     marginHorizontal: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   tabItemText: {
     fontSize: 14,
-    marginBottom: 0
+    marginBottom: 0,
   },
   scene: {
     flex: 1,

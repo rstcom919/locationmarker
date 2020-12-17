@@ -73,7 +73,7 @@ class seletNewPlace extends Component<Props> {
     getMarkers = (latitude, longitude) => {
 
         const data = { latitude, longitude, "radius":1000 }
-        axios.post('http://placetracker.net/RestAPIs/movePlaceRequest', data)
+        axios.post('https://placetracker.net/RestAPIs/movePlaceRequest', data)
             .then(res => {
                 console.log("markers------",res.data.status)
                 if (res.data.status) {

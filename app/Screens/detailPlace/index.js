@@ -182,7 +182,7 @@ export default class App extends Component<Props> {
                         <Text style={styles.contentTextStyle}>{address}</Text>
                     </View>
                     <View style={[styles.phone_input, { flexDirection: 'row' }]}>
-                        <Text style={styles.leftTextStyle}>Phon Number: </Text>
+                        <Text style={styles.leftTextStyle}>Phone Number: </Text>
                         <Text style={{ textAlignVertical: 'center', color: '#AECE74', fontSize: 14 }}>{" " + posted_phone_number}</Text>
                     </View>
                     <View style={styles.phone_input}>

@@ -1,1 +1,1 @@
-export const Endpoint ="http://placetracker.net/RestAPIs/"
+export const Endpoint = 'https://placetracker.net/RestAPIs/';

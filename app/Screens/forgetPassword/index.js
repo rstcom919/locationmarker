@@ -121,7 +121,7 @@ class Landing extends Component {
         this.setState({ loading: true })
         let { email } = this.state;
         const data = { email }
-        axios.post('http://placetracker.net/RestAPIs/sendEmailVerify', data)
+        axios.post('https://placetracker.net/RestAPIs/sendEmailVerify', data)
             .then(res => {
                 if (res.data.status) {
                     this.setState({ loading: false })

@@ -139,7 +139,7 @@ class MapScreen extends Component {
     getMarkers = (latitude, longitude) => {
 
         const data = { latitude, longitude, "radius":1000 }
-        axios.post('http://placetracker.net/RestAPIs/movePlaceRequest', data)
+        axios.post('https://placetracker.net/RestAPIs/movePlaceRequest', data)
             .then(res => {
                 if (res.data.status) {
                     this.setState({ places: res.data.places})
@@ -164,7 +164,7 @@ class MapScreen extends Component {
         if(searchStr == "") return null;
         this.setState({ modalState: true, loading: true })
         const data = { "title_or_address_keyword": searchStr }
-        axios.post('http://placetracker.net/RestAPIs/searchPlaceRequest', data)
+        axios.post('https://placetracker.net/RestAPIs/searchPlaceRequest', data)
             .then(res => {
                 console.log(res.data.status)
                 if (res.data.status) {

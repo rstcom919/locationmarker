@@ -123,7 +123,7 @@ class Landing extends Component {
         this.setState({ loading: true })
         let { veri_code, new_password } = this.state;
         const data = { email,veri_code, new_password  }
-        axios.post('http://placetracker.net/RestAPIs/recoveryPassword', data)
+        axios.post('https://placetracker.net/RestAPIs/recoveryPassword', data)
             .then(res => {
                 console.log("verify--", res.data)
                 if (res.data.status) {

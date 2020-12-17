@@ -80,7 +80,7 @@ project.ext.react = [
     enableHermes: false,  // clean and rebuild if changing
 ]
 
-apply from: "../../node_modules/react-native/react.gradle"
+apply from: "./react.gradle"
 
 /**
  * Set this to true to create two separate APKs instead of one:
@@ -131,7 +131,7 @@ android {
         applicationId "com.locationmark"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 1
+        versionCode 4
         versionName "1.0"
     }
     splits {
