@@ -1,34 +1,92 @@
 {
   "project_info": {
-    "project_number": "1044200575487",
-    "firebase_url": "https://pwarsaeproject.firebaseio.com",
-    "project_id": "pwarsaeproject",
-    "storage_bucket": "pwarsaeproject.appspot.com"
+    "project_number": "993209683252",
+    "firebase_url": "https://mysimplelogin-fdbbf.firebaseio.com",
+    "project_id": "mysimplelogin-fdbbf",
+    "storage_bucket": "mysimplelogin-fdbbf.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1044200575487:android:a2de355e8bf969694957ca",
+        "mobilesdk_app_id": "1:993209683252:android:fc1e33768bd76296",
         "android_client_info": {
-          "package_name": "com.locationmark"
+          "package_name": "com.chat"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1044200575487-5pcg5cqo2kjg624tnscn6bd2r9677gpj.apps.googleusercontent.com",
+          "client_id": "993209683252-n34cdibfscmp8ht8qibmapfhcme5rnba.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyDADJHS4zCJ9y9kMoQsZJTraZAPIPI1Ac4"
+          "current_key": "AIzaSyCwMZWW0544015mW4kYUY7DzXbi1B9u2TQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1044200575487-5pcg5cqo2kjg624tnscn6bd2r9677gpj.apps.googleusercontent.com",
+              "client_id": "993209683252-n34cdibfscmp8ht8qibmapfhcme5rnba.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993209683252:android:46ac52085c1f61fc",
+        "android_client_info": {
+          "package_name": "com.itzeee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993209683252-n34cdibfscmp8ht8qibmapfhcme5rnba.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwMZWW0544015mW4kYUY7DzXbi1B9u2TQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "993209683252-n34cdibfscmp8ht8qibmapfhcme5rnba.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:993209683252:android:bc651d0aa24385f604a961",
+        "android_client_info": {
+          "package_name": "com.placetracker.tom"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "993209683252-n34cdibfscmp8ht8qibmapfhcme5rnba.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwMZWW0544015mW4kYUY7DzXbi1B9u2TQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "993209683252-n34cdibfscmp8ht8qibmapfhcme5rnba.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

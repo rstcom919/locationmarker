@@ -188,7 +188,6 @@ class App extends Component {
             title == '' ||
             posted_phone_number == '' ||
             address == '' ||
-            note == '' ||
             images.length == 0
         ) {
             return alert('Please Enter Your Information!');
@@ -217,7 +216,7 @@ class App extends Component {
                 },
             };
 
-            const url = 'http://placetracker.net/RestAPIs/addPlaceRequest';
+            const url = 'https://placetracker.net/RestAPIs/addPlaceRequest';
             axios.post(url, data, config).then(res => {
                 let navigate = this.props.navigation.navigate;
                 this._updateData();

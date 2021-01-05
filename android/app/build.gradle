@@ -128,10 +128,10 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.locationmark"
+        applicationId "com.placetracker.tom"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode 4
+        versionCode 5
         versionName "1.0"
     }
     splits {
